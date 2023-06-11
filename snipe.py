@@ -1,41 +1,37 @@
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
-import json
 
-# courseCode = "01:198:205"
-# semester = "9"
-# year = "2023"
-courseCode = input("Course code: ")
-semester = input("First month of semester: ")
-year = input("year: ")
-url = "https://sis.rutgers.edu/soc/#keyword?keyword="+courseCode+"&semester="+semester+year+"&campus=NB&level=U"
+semesterCode = "92023"
+desiredIndices = ["07332","07333","07334","19848"]
 
-# r = requests.get(url)
-# x = r._content
-# #x = json.dumps(x)
-# print(x)
+def handleDriver():
+    options = Options()
+    options.add_argument("--headless=new")
+    service = Service(executable_path=ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
 
-options = Options()
-options.add_argument("--headless=new")
-service = Service(executable_path=ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
+def scrape(driver):
+    driver.refresh()
+    try:
+        open = driver.find_element(By.CLASS_NAME,"sectionopen")
+        status = True
+    except:
+        status = False
+    if(status):
+        courseTitle = driver.find_element(By.CLASS_NAME,"highlighttext").text
+        return True, courseTitle
+    return False, 0
 
-driver.get(url)
-driver.implicitly_wait(5)
-totalSections = (driver.find_element(By.CLASS_NAME,"courseOpenSectionsDenominator").text)
-totalSections = int(totalSections[3:])
-#print(totalSections)
-for i in range(1,totalSections+1):
-    indexstr = str(i)
-    specifystr = str(i-1)
-    if(i<10):
-        x = driver.find_element(By.ID,courseCode+".0.section0"+indexstr+"."+specifystr+".sectionData.number.span")
-    else:
-        x = driver.find_element(By.ID,courseCode+".0.section"+indexstr+"."+specifystr+".sectionData.number.span")
-    if(x.get_attribute("class")=="sectionopen"):
-        print("Section {0} open".format(i))
+driver = handleDriver()
+while True:
+    for ind in desiredIndices:
+        url = "https://sis.rutgers.edu/soc/#keyword?keyword="+ind+"&semester="+semesterCode+"&campus=NB&level=U"
+        driver.get(url)
+        driver.implicitly_wait(3)
+        sectionStatus, courseTitle = scrape(driver)
+        if sectionStatus:
+            print("{} - Index {} is open!, register at https://sims.rutgers.edu/webreg/editSchedule.htm?login=cas&semesterSelection={}&indexList={}".format(courseTitle,ind,semesterCode,ind))
