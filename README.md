@@ -6,4 +6,4 @@ Speed of scrape depends on the amount of desired sections, can take anywhere fro
 Code iterates through every index requested and checks the status of the section and returns a message if the section is open as well as a direct link to register for the specific open section.
 When a section opens up, a text/email notification is sent to the user.
 
-Work in progress - frontend coming soon.
+Configured through docker (available on dockerfile in repo) and running on Microsoft Azure.
