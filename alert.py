@@ -1,3 +1,4 @@
+import os
 def alert(subject, body, to):
     import smtplib
     from email.message import EmailMessage
