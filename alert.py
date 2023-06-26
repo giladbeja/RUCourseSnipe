@@ -5,10 +5,10 @@ def alert(subject, body, to):
     msg.set_content(body)
     msg['subject'] = subject
     msg['to'] = to
-    msg['from'] = ''
+    msg['from'] = os.getenv("fromEmail")
     
-    user = ''
-    passkey = ''
+    user = os.getenv("fromEmail")
+    passkey = os.getenv("passkey")
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
 
